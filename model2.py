@@ -101,4 +101,23 @@ print(f"Validation Recall: {val_recall}")
 print(f"Validation Precision: {val_precision}")
 print(f"Validation AUC (PR Curve): {val_auc}")
 
+fig, axs = plt.subplots(1, 2, figsize=(16, 10), sharex=True)
+axs[0].plot(range(1, epoch+1), history.history['accuracy'], label='Training Accuracy')
+axs[0].plot(range(1, epoch+1), history.history['val_accuracy'], label='Validation Accuracy')
+axs[0].set_title('Model Accuracy')
+axs[0].set_xlabel('Epoch') 
+axs[0].set_ylabel('Accuracy')
+axs[0].set_xticks(np.arange(1, epoch+1, 1))
+axs[0].legend()
+
+axs[1].plot(range(1, epoch+1), history.history['loss'], label='Training Loss')
+axs[1].plot(range(1, epoch+1), history.history['val_loss'], label='Validation Loss')
+axs[1].set_title('Training and Validation Loss')
+axs[1].set_xlabel('Epoch') 
+axs[1].set_ylabel('Loss')
+axs[1].set_xticks(np.arange(1, epoch+1, 1))
+axs[1].legend()
+
+plt.show()
+
 
