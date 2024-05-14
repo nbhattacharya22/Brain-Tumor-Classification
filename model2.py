@@ -95,11 +95,81 @@ epoch = 10 #how many times model goes through training images
 history = model.fit(training_data, validation_data=validation_data, epochs=epoch, verbose=1, callbacks=[es, csv_logger])
 val_loss, val_accuracy, val_recall, val_precision, val_auc = model.evaluate(validation_data)
 model.save('model.h5')
+model = keras.models.load_model('model.h5')
 print(f"Validation Loss: {val_loss}")
 print(f"Validation Accuracy: {val_accuracy}")
 print(f"Validation Recall: {val_recall}")
 print(f"Validation Precision: {val_precision}")
 print(f"Validation AUC (PR Curve): {val_auc}")
+
+predictions = []
+actualvals = []
+
+for _ in range(66):
+    test, actual = vaildation_data.next()
+    
+    
+    actualvals.extend(actual)
+
+    prediction = model.predict(test)
+    
+
+    predictions.extend(prediction.flatten() > 0.5)
+
+# Calculate confusion matrix outside the loop
+cmatrix = confusion_matrix(actualvals, predictions)
+
+
+# Plot the confusion matrix
+plt.figure(figsize=(8, 8))
+sns.heatmap(cmatrix, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Actual Classification')
+plt.ylabel('Predicted Classification')
+plt.title('Confusion Matrix')
+#plt.show()
+
+
+
+# ROC Curve and AUC
+y_true = np.array(actualvals)
+y_pred = np.array(predictions).astype(float)
+fpr, tpr, _ = roc_curve(y_true, y_pred)
+roc_auc = auc(fpr, tpr)
+
+plt.figure()
+plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic')
+plt.legend(loc="lower right")
+#plt.show()
+
+# Precision-Recall Curve
+precision, recall, _ = precision_recall_curve(y_true, y_pred)
+plt.figure()
+plt.plot(recall, precision, color='blue', lw=2)
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision-Recall Curve')
+#plt.show()
+
+
+# Sample Predictions
+def display_sample_predictions(model, data_generator, num_images=6):
+    fig, ax = plt.subplots(2, 3, figsize=(12, 8))
+    for i in range(num_images):
+        img, label = data_generator.next()
+        prediction = model.predict(img)
+        ax[i // 3, i % 3].imshow(img[0], cmap='gray')
+        ax[i // 3, i % 3].set_title(f"True: {label[0]}, Pred: {int(prediction[0] > 0.5)}")
+        ax[i // 3, i % 3].axis('off')
+    plt.show()
+
+display_sample_predictions(model, vaildation_data)
+
 
 fig, axs = plt.subplots(1, 2, figsize=(16, 10), sharex=True)
 axs[0].plot(range(1, epoch+1), history.history['accuracy'], label='Training Accuracy')
