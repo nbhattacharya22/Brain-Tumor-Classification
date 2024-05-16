@@ -1,11 +1,26 @@
- 
-#Code for streamlit App to process and make prediction on image
+import streamlit as st
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+import numpy as np
+import tensorflow as tf
 
-       img = load_img(uploaded_image, target_size=(256, 256), color_mode='grayscale')
-        image_array = img_to_array(img)
-        image_array = image_array / 255.0
-        image_array = np.expand_dims(image_array, axis=0)
-        
-        # Predict
-        prediction = model.predict(image_array)
-        predicted_class = 1 if prediction[0] > 0.5 else 0
+########################################### Create the UI ###########################################
+
+model = tf.keras.models.load_model('model.h5') # Load the model that we desire to use
+
+st.title("Brain Tumor Image Classification") # Title of the app
+
+st.caption(" Developed by: Neel, Ehsan, Arnay, Alexandra, Neera, and Oscar!") # Subtitle of the app, containing names of the developers
+
+uploaded_image = st.file_uploader("Upload an X-ray Image:", type=["png", "jpg", "jpeg"]) # File uploader to upload the image, only png, jpg, and jpeg files are allowed
+if uploaded_image is not None:  #if an image is uploaded, display the image
+    img = load_img(uploaded_image, target_size=(256, 256), color_mode='grayscale')  # Load the image and convert it to grayscale
+    image_array = img_to_array(img)
+    image_array = image_array / 255.0
+    image_array = np.expand_dims(image_array, axis=0)
+
+    
+if st.button("Predict Image", key="predict_button"): # Button to predict the image
+#if st.button("Predict Image"):  #when predict button is clicked, run the model on the image
+    prediction = model.predict(image_array) 
+    predicted_class = "No Tumor Detected" if prediction[0] > 0.5 else "Tumor Detected" #If the prediction is greater than 0.5, then the image is classified as having a tumor, otherwise it is classified as not having a tumor
+    st.write("Prediction: {}".format(predicted_class))
