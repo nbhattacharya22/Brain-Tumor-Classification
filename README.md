@@ -4,7 +4,7 @@ Description:
 This model (CNN) aims to accurately classify brain tumors as healthy or non-cancerous using image classification.
 
 Tools/Technologies Used:
-Pandas, Matplotlib, NumPy, TensorFlow
+Pandas, Matplotlib, NumPy, TensorFlow, Scikit-Learn, Seaborn
 
 Image Preprocessing Techniques:
 Normalization, Resizing, Grayscale, Data Augmentation
